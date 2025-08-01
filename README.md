@@ -24,7 +24,7 @@ A seguir, apresentamos algumas telas do sistema para ilustrar seu funcionamento:
 
 Nesta tela, o sistema está pronto para receber as informações do cliente e iniciar o processo de busca pela bolsa de desconto ideal. O foco na interface intuitiva permite uma interação fluida para o usuário.
 
-![Tela Inicial - Entrada de Dados](assets/screenshots/image_203469.png)
+![Tela Inicial - Entrada de Dados](assets/screenshots/1.png)
 
 ### 2. Consulta de Turmas e Aplicação de Desconto
 
