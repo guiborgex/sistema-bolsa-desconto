@@ -30,13 +30,13 @@ Nesta tela, o sistema está pronto para receber as informações do cliente e in
 
 Após a seleção do curso e turno, o sistema processa as informações para consultar a disponibilidade da turma e aplicar as regras de negócio para encontrar a melhor oferta de desconto, exibindo-a de forma clara.
 
-![Consulta de Turmas e Detalhes do Desconto](sistema-bolsa-desconto/screenshots/2.png)
+![Consulta de Turmas e Detalhes do Desconto](screenshots/2.png)
 
 ### 3. Resumo da Proposta com Escassez e Urgência
 
 A tela final consolida todas as informações da proposta. O desconto, o prazo de validade (com o cronômetro em tempo real!) e a opção de gerar o PDF são apresentados, validando a escassez de forma visual e inegável.
 
-![Resumo da Proposta com Prazo e Urgência](sistema-bolsa-desconto/screenshots/3.png)
+![Resumo da Proposta com Prazo e Urgência](screenshots/3.png)
 
 ## Habilidades e Tecnologias Aplicadas
 
