@@ -43,11 +43,10 @@ A tela final consolida todas as informações da proposta. O desconto, o prazo d
 Este projeto me permitiu aplicar e aprofundar conhecimentos em diversas áreas da tecnologia:
 
 * **Desenvolvimento Web (Frontend):** Construção da interface de usuário intuitiva e responsiva (HTML, CSS, JavaScript).
-* **Desenvolvimento Web (Backend):** Implementação da lógica de servidor para processamento de dados e regras de negócio (Linguagem/Framework específicos que você usou, ex: PHP, Python/Flask, Node.js/Express).
+* **Desenvolvimento Web (Backend):** Implementação da lógica de processamento de dados localmente no navegador, sem necessidade de servidor backend tradicional, demonstrando soluções eficazes para ambientes offline/internos (usando JavaScript e a biblioteca `xlsx.full.min.js` para manipulação de planilhas Excel).
 * **Integração de Dados via Excel:** Desenvolvimento de funcionalidade para que os dados de turmas, horários, valores e outras configurações sejam facilmente atualizados através de um arquivo Excel. Isso proporciona agilidade e autonomia na gestão do conteúdo do sistema, sem a necessidade de intervenções no código.
 * **Análise e Resolução de Problemas:** Transformação de uma necessidade comercial em uma solução tecnológica funcional e eficaz.
 * **UX/UI Design:** Foco na experiência do usuário para tornar o processo de geração da bolsa simples e transparente.
-* **Versionamento de Código:** Utilização de Git e GitHub para controle de versão e colaboração no desenvolvimento.
 
 ## Como Executar
 
