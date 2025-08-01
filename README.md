@@ -56,7 +56,7 @@ Este sistema utiliza um arquivo Excel para carregar dinamicamente os dados de tu
 1.  **Pré-requisitos:** Apenas um navegador web moderno (ex: Chrome, Firefox, Edge).
 2.  **Clonar o Repositório:**
     ```bash
-    git clone [https://github.com/guiborgex/sistema-bolsa-desconto.git](https://github.com/SEU_USUARIO/sistema-bolsa-desconto.git)
+    git clone [https://github.com/guiborgex/sistema-bolsa-desconto.git](https://github.com/guiborgex/sistema-bolsa-desconto.git)
     ```
 3.  **Abrir no Navegador:** Navegue até a pasta clonada do projeto e abra o arquivo `central.html` diretamente no seu navegador de preferência. Por exemplo, você pode arrastá-lo e soltá-lo na janela do navegador, ou clicar duas vezes nele.
 4.  **Anexar o Arquivo Excel:** No próprio sistema, haverá uma opção para "Carregar planilha de turmas e preços (.xlsx)". Selecione o arquivo `turmas_evalores_exemplo.xlsx` (disponível na pasta `assets/turmas_evalores_exemplo.xlsx` deste repositório) para carregar os dados de exemplo.
