@@ -51,7 +51,7 @@ Este projeto me permitiu aplicar e aprofundar conhecimentos em diversas áreas d
 ## Como Executar
 
 ### Dados de Configuração
-Este sistema utiliza um arquivo Excel para carregar dinamicamente os dados de turmas, horários, valores e outras configurações. Para fins de demonstração e teste, incluí um arquivo de exemplo (`assets/turmas_evalores_exemplo.xlsx`) que contém dados fictícios. **Os dados reais da instituição não estão incluídos neste repositório por questões de segurança e confidencialidade.**
+Este sistema utiliza um arquivo Excel para carregar dinamicamente os dados de turmas, horários, valores e outras configurações. Para fins de demonstração e teste, incluí um arquivo de exemplo (`assets/data/turmas_evalores_exemplo.xlsx`) que contém dados fictícios. **Os dados reais da instituição não estão incluídos neste repositório por questões de segurança e confidencialidade.**
 
 1.  **Pré-requisitos:** Apenas um navegador web moderno (ex: Chrome, Firefox, Edge).
 2.  **Clonar o Repositório:**
@@ -59,7 +59,7 @@ Este sistema utiliza um arquivo Excel para carregar dinamicamente os dados de tu
     git clone [https://github.com/guiborgex/sistema-bolsa-desconto.git](https://github.com/guiborgex/sistema-bolsa-desconto.git)
     ```
 3.  **Abrir no Navegador:** Navegue até a pasta clonada do projeto e abra o arquivo `central.html` diretamente no seu navegador de preferência. Por exemplo, você pode arrastá-lo e soltá-lo na janela do navegador, ou clicar duas vezes nele.
-4.  **Anexar o Arquivo Excel:** No próprio sistema, haverá uma opção para "Carregar planilha de turmas e preços (.xlsx)". Selecione o arquivo `turmas_evalores_exemplo.xlsx` (disponível na pasta `assets/turmas_evalores_exemplo.xlsx` deste repositório) para carregar os dados de exemplo.
+4.  **Anexar o Arquivo Excel:** No próprio sistema, haverá uma opção para "Carregar planilha de turmas e preços (.xlsx)". Selecione o arquivo `turmas_evalores_exemplo.xlsx` (disponível na pasta `assets/data/turmas_evalores_exemplo.xlsx` deste repositório) para carregar os dados de exemplo.
 
 
 ## Contato
