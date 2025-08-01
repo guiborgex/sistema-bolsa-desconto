@@ -1,1 +1,657 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Proposta de Bolsas - Grau Educacional</title>
+    <link rel="icon" href="https://imgur.com/a/SUL1QuU" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);}
+        .card-shadow { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -2px rgba(0,0,0,0.05);}
+        .fade-in { animation: fadeIn 0.3s ease-in-out;}
+        @keyframes fadeIn { from {opacity:0;transform:translateY(10px);} to {opacity:1;transform:translateY(0);} }
+        textarea { resize: none;}
+        @media print { body * {visibility: hidden;} #printArea, #printArea * {visibility: visible !important;} #printArea {position: absolute!important;left:0;top:0;width:100vw;min-height:100vh;background:#fff;box-shadow:none!important;padding:0!important;margin:0!important;}
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-2 sm:px-4 py-8">
+        <div class="max-w-5xl mx-auto">
+            <div class="gradient-bg text-white rounded-t-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex-1 flex items-center gap-4">
+                    <img src="https://www.abrigo.org.br/sites/default/files/2023-04/educacional.png" alt="Logo Grau Educacional" class="h-16 w-auto bg-white rounded-lg p-1 shadow-md">
+                    <div>
+                        <h1 class="text-3xl font-bold text-white">Grau Educacional</h1>
+                        <p class="text-green-100">Sistema de Proposta de Bolsas</p>
+                        <nav class="mt-3">
+                            <ul class="flex flex-wrap gap-6 text-base font-semibold">
+                                <li><a href="#" class="transition-colors duration-200 text-green-100 hover:text-yellow-300 hover:underline">Início</a></li>
+                                <li><a href="#" class="transition-colors duration-200 text-green-100 hover:text-yellow-300 hover:underline">Cursos</a></li>
+                                <li><a href="#" class="transition-colors duration-200 text-green-100 hover:text-yellow-300 hover:underline">Propostas</a></li>
+                                <li><a href="#" class="transition-colors duration-200 text-green-100 hover:text-yellow-300 hover:underline">Contato</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                <div class="hidden sm:flex bg-white text-green-700 p-3 rounded-lg shadow-lg items-center justify-center">
+                    <i class="fas fa-graduation-cap text-4xl"></i>
+                </div>
+            </div>
+            <div class="bg-white p-8 rounded-b-xl card-shadow fade-in">
+                <div id="uploadDiv" class="mb-6">
+                    <input type="file" id="inputExcel" accept=".xlsx,.xls" class="hidden">
+                    <button type="button" id="btnUpload" class="flex items-center gap-3 bg-green-700 hover:bg-green-800 text-white font-semibold rounded px-6 py-3 shadow transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 mb-2">
+                        <i class="fas fa-upload text-xl"></i>
+                        <span>Carregar planilha de turmas e preços (.xlsx)</span>
+                    </button>
+                    <div id="uploadMsg" class="text-gray-500 text-sm mt-1">
+                        A planilha deve conter as abas <b>"Turmas"</b> e <b>"Precos"</b> com os campos solicitados.
+                    </div>
+                </div>
+                <form id="formDesconto" onsubmit="event.preventDefault(); exibirInfoTurma();">
+                    <div class="mb-4">
+                        <label for="numeroCliente" class="block font-semibold mb-1">Número do Cliente:</label>
+                        <input type="text" id="numeroCliente" class="w-full border rounded px-3 py-2" placeholder="Digite o número do cliente" pattern="\d*" inputmode="numeric">
+                    </div>
+                    <div class="mb-4">
+                        <label for="nomeCliente" class="block font-semibold mb-1">Nome do Cliente:</label>
+                        <input type="text" id="nomeCliente" class="w-full border rounded px-3 py-2" placeholder="Digite o nome do cliente" maxlength="100">
+                    </div>
+                    <div class="mb-4 flex items-center gap-3">
+                        <label for="modalidade" class="block font-semibold mb-1">Modalidade:</label>
+                        <select id="modalidade" class="border rounded px-3 py-2"></select>
+                        <span id="iconModalidade"></span>
+                    </div>
+                    <div class="mb-4">
+                        <label for="curso" class="block font-semibold mb-1">Escolha o curso:</label>
+                        <select id="curso" class="w-full border rounded px-3 py-2"></select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="turno" class="block font-semibold mb-1">Escolha o turno:</label>
+                        <select id="turno" class="w-full border rounded px-3 py-2"></select>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                        <button type="submit" id="btnTurma" class="bg-green-700 hover:bg-green-800 text-white font-semibold rounded px-6 py-2 transition-colors duration-200">
+                            Consultar Turma
+                        </button>
+                        <button type="button" onclick="limparFormulario()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded px-6 py-2 transition-colors duration-200 flex items-center gap-2">
+                            <i class="fas fa-broom"></i> Limpar
+                        </button>
+                    </div>
+                    <div id="alertaUltimaBolsa" class="bg-yellow-100 border-l-4 border-yellow-400 text-yellow-800 p-4 mb-4 rounded font-bold" style="display:none;">
+                        AVISO: ÚLTIMA BOLSA DISPONÍVEL!
+                    </div>
+                    <div id="resultado" class="mb-4" role="region" aria-live="polite"></div>
+                    <div id="areaDesconto"></div>
+                </form>
+                <div id="timer" class="text-center text-red-600 font-semibold mt-6"></div>
+            </div>
+            <div id="printArea" class="hidden"></div>
+        </div>
+    </div>
+<script>
+let turmasPlanilha = [];
+let precosPlanilha = [];
+let countdownInterval,
+    lastResumoTexto = '',
+    lastResumoHTML = '',
+    resumoDataFim = null,
+    resumoInicioTurma = '',
+    resumoDiasAula = '',
+    resumoTurmaDisciplinas = [],
+    resumoModalidade = '';
+let modalidadesDisponiveis = [],
+    cursosDisponiveis = [],
+    turnosDisponiveis = [];
+let planilhaOk = false;
 
+function excelDateToString(excelDate) {
+  if (!excelDate) return '-';
+  if (typeof excelDate === "string" && excelDate.match(/^\d{4}-\d{2}-\d{2}/)) {
+    const [y, m, d] = excelDate.split('-');
+    return `${d}/${m}/${y}`;
+  }
+  if (typeof excelDate === "number") {
+    const date = new Date(Math.round((excelDate - 25569) * 86400 * 1000));
+    const d = String(date.getUTCDate()).padStart(2, '0');
+    const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const y = date.getUTCFullYear();
+    return `${d}/${m}/${y}`;
+  }
+  return excelDate;
+}
+
+function stringToDate_ddmmyyyy(str) {
+  if (!str || str === '-') return null;
+  const [d, m, y] = str.split('/');
+  return new Date(y, m - 1, d, 0, 0, 0, 0);
+}
+
+function getProximaDataFuturaDisciplinas(disciplinas) {
+  const hoje = new Date();
+  hoje.setHours(0,0,0,0);
+  let datasFuturas = disciplinas
+    .map(d => excelDateToString(d.inicio))
+    .map(str => ({str, date: stringToDate_ddmmyyyy(str)}))
+    .filter(obj => obj.date && obj.date >= hoje)
+    .sort((a, b) => a.date - b.date);
+  return datasFuturas.length > 0 ? datasFuturas[0].str : '';
+}
+
+document.getElementById('btnUpload').onclick = function() {
+    document.getElementById('inputExcel').click();
+};
+
+document.getElementById('inputExcel').addEventListener('change', function(e){
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt){
+        const data = new Uint8Array(evt.target.result);
+        const workbook = XLSX.read(data, {type: 'array'});
+
+        const sheetTurmas = workbook.Sheets['Turmas'];
+        if (!sheetTurmas) {
+            alert("Planilha não contém aba 'Turmas'!");
+            return;
+        }
+        const linhasTurmas = XLSX.utils.sheet_to_json(sheetTurmas, {defval: ''});
+        turmasPlanilha = [];
+        linhasTurmas.forEach(linha => {
+            let existe = turmasPlanilha.find(t =>
+                t.curso === linha.Curso &&
+                t.turno === linha.Turno &&
+                t.turma === linha.Turma &&
+                t.modalidade === linha.Modalidade
+            );
+            if (!existe) {
+                turmasPlanilha.push({
+                    curso: linha.Curso,
+                    turno: linha.Turno,
+                    turma: linha.Turma,
+                    dias: linha.Dias,
+                    modalidade: linha.Modalidade,
+                    disciplinas: []
+                });
+            }
+            existe = turmasPlanilha.find(t =>
+                t.curso === linha.Curso &&
+                t.turno === linha.Turno &&
+                t.turma === linha.Turma &&
+                t.modalidade === linha.Modalidade
+            );
+            existe.disciplinas.push({
+                inicio: linha.DataInicio,
+                nro: linha.DisciplinaNro,
+                nome: linha.DisciplinaNome
+            });
+        });
+        const sheetPrecos = workbook.Sheets['Precos'];
+        if (!sheetPrecos) {
+            alert("Planilha não contém aba 'Precos'!");
+            return;
+        }
+        precosPlanilha = XLSX.utils.sheet_to_json(sheetPrecos, {defval: ''});
+        modalidadesDisponiveis = [...new Set(turmasPlanilha.map(t => t.modalidade))];
+        preencherModalidades();
+        planilhaOk = true;
+        document.getElementById("uploadDiv").innerHTML = `
+            <div id="uploadSuccess" class="flex items-center gap-2 text-green-700 font-semibold">
+                <i class="fas fa-check-circle"></i>
+                Planilha carregada com sucesso!
+            </div>
+        `;
+        setTimeout(() => {
+            const div = document.getElementById("uploadDiv");
+            if(div) div.style.display = "none";
+        }, 3000);
+    };
+    reader.readAsArrayBuffer(file);
+});
+
+function preencherModalidades() {
+    const modalidadeSel = document.getElementById('modalidade');
+    modalidadeSel.innerHTML = '';
+    modalidadesDisponiveis.forEach(modalidade => {
+        const option = document.createElement('option');
+        option.value = modalidade;
+        option.textContent = modalidade;
+        modalidadeSel.appendChild(option);
+    });
+    atualizarIconModalidade();
+    modalidadeSel.onchange = function(){
+        atualizarIconModalidade();
+        preencherCursos();
+    }
+    preencherCursos();
+}
+
+function preencherCursos() {
+    const modalidade = document.getElementById('modalidade').value;
+    const cursoSel = document.getElementById('curso');
+    const cursos = turmasPlanilha.filter(t => t.modalidade === modalidade).map(t => t.curso);
+    cursosDisponiveis = [...new Set(cursos)];
+    cursoSel.innerHTML = '';
+    cursosDisponiveis.forEach(curso => {
+        const option = document.createElement('option');
+        option.value = curso;
+        option.textContent = curso;
+        cursoSel.appendChild(option);
+    });
+    cursoSel.onchange = preencherTurnos;
+    preencherTurnos();
+}
+
+function preencherTurnos() {
+    const modalidade = document.getElementById('modalidade').value;
+    const curso = document.getElementById('curso').value;
+    const turnoSel = document.getElementById('turno');
+    const turnos = turmasPlanilha.filter(t => t.modalidade === modalidade && t.curso === curso).map(t => t.turno);
+    turnosDisponiveis = [...new Set(turnos)];
+    turnoSel.innerHTML = '';
+    turnosDisponiveis.forEach(turno => {
+        const option = document.createElement('option');
+        option.value = turno;
+        option.textContent = turno;
+        turnoSel.appendChild(option);
+    });
+}
+
+function atualizarIconModalidade() {
+    const modalidade = document.getElementById('modalidade').value || "";
+    const iconSpan = document.getElementById('iconModalidade');
+    if (modalidade.toLowerCase().includes('presencial')) {
+        iconSpan.innerHTML = '<i class="fas fa-users text-green-600" title="Presencial"></i>';
+    } else if (modalidade.toLowerCase().includes('interativo')) {
+        iconSpan.innerHTML = '<i class="fas fa-laptop text-blue-700" title="Interativo"></i>';
+    } else {
+        iconSpan.innerHTML = '';
+    }
+}
+
+function exibirInfoTurma() {
+    if (!planilhaOk) {
+        document.getElementById("resultado").innerHTML = `
+          <div class="flex items-center gap-2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            Carregue uma planilha válida antes de consultar turmas.
+          </div>`;
+        return;
+    }
+    document.getElementById("resultado").innerHTML = `
+    <div class="flex items-center gap-2 text-blue-600 font-semibold">
+      <i class="fas fa-spinner fa-spin"></i>
+      Consultando turma...
+    </div>
+  `;
+    document.getElementById("areaDesconto").innerHTML = "";
+    setTimeout(() => {
+        mostrarInfoTurma();
+    }, 1000);
+}
+
+function mostrarInfoTurma() {
+  const numeroCliente = document.getElementById("numeroCliente").value.trim();
+  const nomeCliente = document.getElementById("nomeCliente").value.trim();
+  const turnoSelecionado = document.getElementById("turno").value;
+  const cursoSelecionado = document.getElementById("curso").value;
+  const modalidadeSelecionada = document.getElementById('modalidade').value;
+  const resultadoDiv = document.getElementById("resultado");
+  const areaDesconto = document.getElementById("areaDesconto");
+  resultadoDiv.innerHTML = "";
+  document.getElementById("alertaUltimaBolsa").style.display = "none";
+  document.getElementById("timer").innerHTML = "";
+  clearInterval(countdownInterval);
+
+  if (!numeroCliente || !nomeCliente) {
+    resultadoDiv.innerHTML = `
+      <div class="flex items-center gap-2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        Por favor, preencha todos os campos obrigatórios.
+      </div>`;
+    return;
+  }
+  if (!/^\d+$/.test(numeroCliente)) {
+    resultadoDiv.innerHTML = `
+      <div class="flex items-center gap-2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        O número do cliente deve conter apenas dígitos.
+      </div>`;
+    return;
+  }
+
+  const turmaInfo = turmasPlanilha.find(item =>
+    item.curso === cursoSelecionado &&
+    item.turno === turnoSelecionado &&
+    item.modalidade === modalidadeSelecionada
+  );
+
+  if (!turmaInfo) {
+    resultadoDiv.innerHTML = `
+      <div class="flex items-center gap-2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        Não há turma disponível para essa combinação de curso, turno e modalidade.
+      </div>`;
+    return;
+  }
+
+  // Salva disciplinas da turma para uso posterior e calcula próxima data
+  resumoTurmaDisciplinas = turmaInfo.disciplinas;
+  resumoInicioTurma = getProximaDataFuturaDisciplinas(resumoTurmaDisciplinas);
+  resumoDiasAula = turmaInfo.dias;
+  resumoModalidade = turmaInfo.modalidade;
+
+  // Só mostra início e disciplinas se NÃO for interativo
+  let blocoInicio = "";
+  let blocoDisciplinas = "";
+  if (!resumoModalidade.toLowerCase().includes('interativo')) {
+      blocoInicio = `<b>Início da turma:</b> ${resumoInicioTurma ? resumoInicioTurma : '-'} <br>`;
+      blocoDisciplinas = `<b>Cronograma de disciplinas:</b> <table class="w-full mt-3 text-sm">
+        <thead>
+            <tr class="bg-blue-50">
+                <th class="py-2 px-2 text-left font-bold">Início</th>
+                <th class="py-2 px-2 text-left font-bold">Disciplina</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${turmaInfo.disciplinas.map(d => `
+            <tr>
+                <td class="py-1 px-2">${excelDateToString(d.inicio)}</td>
+                <td class="py-1 px-2">${d.nro} - ${d.nome}</td>
+            </tr>
+            `).join('')}
+        </tbody>
+      </table>`;
+  }
+
+  resultadoDiv.innerHTML = `
+    <div class="flex items-center gap-2 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded font-semibold" role="status">
+      <i class="fas fa-check-circle"></i>
+      Informações da turma localizada!
+    </div>
+    <div class="mt-3">
+      <strong>Informações da turma:</strong><br>
+      <b>Turma:</b> ${turmaInfo.turma} <br>
+      <b>Modalidade:</b> ${resumoModalidade} <br>
+      ${blocoInicio}
+      <b>Dias de aula:</b> ${resumoDiasAula} <br>
+      ${blocoDisciplinas}
+    </div>
+  `;
+
+  areaDesconto.innerHTML = `
+    <div class="mt-4">
+      <label for="desconto" class="font-semibold mb-1 block">Escolha o desconto:</label>
+      <select id="desconto" onchange="mostrarCampoSenha()" class="w-full border rounded px-3 py-2 mb-2">
+        <option value="10">10%</option>
+        <option value="15">15%</option>
+        <option value="20">20%</option>
+        <option value="25">25%</option>
+        <option value="30">30%</option>
+      </select>
+    </div>
+    <div id="senhaContainer" style="display:none;" class="mt-2">
+      <label for="senhaCoordenador" class="font-semibold mb-1 block">Senha do Coordenador:</label>
+      <input type="password" id="senhaCoordenador" class="w-full border rounded px-3 py-2" placeholder="Digite a senha do coordenador" />
+    </div>
+    <button type="button" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded px-6 py-2 w-full mt-4 transition-colors duration-200" onclick="mostrarDelayBolsa()">Gerar Bolsa de Desconto</button>
+  `;
+}
+
+function mostrarCampoSenha() {
+  const descontoSelecionado = document.getElementById("desconto").value;
+  const senhaDiv = document.getElementById("senhaContainer");
+  if (descontoSelecionado === "25" || descontoSelecionado === "30") {
+    senhaDiv.style.display = "block";
+  } else {
+    senhaDiv.style.display = "none";
+  }
+}
+
+function mostrarDelayBolsa() {
+  const descontoSelect = document.getElementById("desconto");
+  const descontoValor = descontoSelect ? descontoSelect.value : "10";
+  const senhaCoordenadorInput = document.getElementById("senhaCoordenador");
+  const senhaValor = senhaCoordenadorInput ? senhaCoordenadorInput.value : "";
+  const resultadoDiv = document.getElementById("resultado");
+  const areaDesconto = document.getElementById("areaDesconto");
+  areaDesconto.innerHTML = "";
+  resultadoDiv.innerHTML += `
+    <div class="flex items-center gap-2 text-blue-600 font-semibold mt-2">
+      <i class="fas fa-spinner fa-spin"></i>
+      Conectando aos servidores...
+    </div>
+  `;
+  setTimeout(() => {
+    resultadoDiv.innerHTML = resultadoDiv.innerHTML.replace(/<div class="flex items-center gap-2 text-blue-600 font-semibold mt-2">[\s\S]*?<\/div>/, "");
+    gerarBolsaDesconto(descontoValor, senhaValor);
+  }, 1500);
+}
+
+function gerarBolsaDesconto(descontoStr, senhaCoordenador) {
+  const numeroCliente = document.getElementById("numeroCliente").value.trim();
+  const nomeCliente = document.getElementById("nomeCliente").value.trim();
+  const turnoSelecionado = document.getElementById("turno").value;
+  const cursoSelecionado = document.getElementById("curso").value;
+  const modalidadeSelecionada = document.getElementById('modalidade').value;
+  const desconto = parseFloat(descontoStr) / 100;
+  const resultadoDiv = document.getElementById("resultado");
+  const areaDesconto = document.getElementById("areaDesconto");
+
+  // Pega preço e parcelas da aba Precos
+  const precoObj = precosPlanilha.find(p => 
+      p.Curso === cursoSelecionado && p.Turno === turnoSelecionado && (p.Modalidade ? p.Modalidade === modalidadeSelecionada : true)
+  );
+  if (!precoObj) {
+    resultadoDiv.innerHTML += `
+      <div class="flex items-center gap-2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-2" role="alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        Não foi encontrado preço para este curso/turno/modalidade na aba Precos!
+      </div>`;
+    areaDesconto.innerHTML = "";
+    return;
+  }
+  const precoCheio = Number(precoObj.ValorCheio) || 0;
+  const parcelas = Number(precoObj.Parcelas) || 1;
+  const valorFinal = precoCheio * (1 - desconto);
+  const valorParcela = valorFinal / parcelas;
+
+  if ((descontoStr === "25" || descontoStr === "30") && senhaCoordenador !== "super2025") {
+    resultadoDiv.innerHTML += `
+      <div class="flex items-center gap-2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-2" role="alert">
+        <i class="fas fa-lock"></i>
+        Senha do Coordenador incorreta.
+      </div>`;
+    areaDesconto.innerHTML = "";
+    return;
+  }
+
+  if (descontoStr === "30") {
+    document.getElementById("alertaUltimaBolsa").style.display = "block";
+  } else {
+    document.getElementById("alertaUltimaBolsa").style.display = "none";
+  }
+
+  const agora = new Date();
+  const dataFim = new Date(agora.getTime() + 6 * 60 * 60 * 1000); // 6 horas
+  resumoDataFim = dataFim;
+
+  function formatarDataHoraBR(date) {
+    const d = String(date.getDate()).padStart(2, '0');
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const y = date.getFullYear();
+    const h = String(date.getHours()).padStart(2, '0');
+    const min = String(date.getMinutes()).padStart(2, '0');
+    return `${d}/${m}/${y} às ${h}:${min}`;
+  }
+  const dataEncerramentoBR = formatarDataHoraBR(dataFim);
+
+  // Calcula próxima data futura de disciplina
+  let proximoInicio = getProximaDataFuturaDisciplinas(resumoTurmaDisciplinas);
+  let linhaInicioTurmaTexto = '';
+  let linhaInicioTurmaHTML = '';
+  // Só mostra início se NÃO for interativo
+  if (!resumoModalidade.toLowerCase().includes('interativo')) {
+    if (proximoInicio) {
+      linhaInicioTurmaTexto = `Início da turma: ${proximoInicio}\n`;
+      linhaInicioTurmaHTML = `<b>Início da turma:</b> ${proximoInicio} <br>`;
+    }
+  }
+
+  // Ícone modalidade
+  let iconeModalidade = '';
+  if (resumoModalidade.toLowerCase().includes('presencial')) {
+    iconeModalidade = '<i class="fas fa-users text-green-600" title="Presencial"></i> ';
+  } else if (resumoModalidade.toLowerCase().includes('interativo')) {
+    iconeModalidade = '<i class="fas fa-laptop text-blue-700" title="Interativo"></i> ';
+  }
+
+  const resumoTexto = `
+Cliente: ${nomeCliente}
+Nº Cliente: ${numeroCliente}
+Curso: ${cursoSelecionado}
+Turno: ${turnoSelecionado}
+Modalidade: ${resumoModalidade}
+${linhaInicioTurmaTexto}Dias de aula: ${resumoDiasAula}
+Valor cheio: R$ ${precoCheio.toLocaleString('pt-BR', {minimumFractionDigits: 2})}
+Desconto: ${descontoStr}%
+Valor com desconto: R$ ${valorFinal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}
+Parcelas: ${parcelas}x de R$ ${valorParcela.toLocaleString('pt-BR', {minimumFractionDigits: 2})}
+Proposta válida até: ${dataEncerramentoBR}
+  `;
+
+  let blocoDisciplinas = '';
+  if (!resumoModalidade.toLowerCase().includes('interativo')) {
+    blocoDisciplinas = `<div class="mb-2"><b>Cronograma de disciplinas:</b>
+      <table class="w-full mt-1 text-sm">
+        <thead>
+            <tr class="bg-blue-50">
+                <th class="py-2 px-2 text-left font-bold">Início</th>
+                <th class="py-2 px-2 text-left font-bold">Disciplina</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${resumoTurmaDisciplinas.map(d => `
+            <tr>
+                <td class="py-1 px-2">${excelDateToString(d.inicio)}</td>
+                <td class="py-1 px-2">${d.nro} - ${d.nome}</td>
+            </tr>
+            `).join('')}
+        </tbody>
+      </table></div>`;
+  }
+
+  const resumoHTML = `
+    <div class="mt-6 bg-yellow-50 border border-yellow-300 rounded-lg p-6 text-yellow-900 shadow-inner relative fade-in">
+      <div class="absolute top-2 right-2 text-2xl text-yellow-400"><i class="fas fa-certificate"></i></div>
+      <h2 class="text-2xl font-bold mb-2">Resumo da Proposta</h2>
+      <div class="mb-2"><b>Cliente:</b> ${nomeCliente} <br>
+        <b>Nº Cliente:</b> ${numeroCliente} <br>
+        <b>Curso:</b> ${cursoSelecionado} <br>
+        <b>Turno:</b> ${turnoSelecionado} <br>
+        <b>Modalidade:</b> ${iconeModalidade}${resumoModalidade} <br>
+        ${linhaInicioTurmaHTML}
+        <b>Dias de aula:</b> ${resumoDiasAula}
+      </div>
+      ${blocoDisciplinas}
+      <div class="mb-2">
+        <b>Valor cheio:</b> <span class="line-through text-red-600">R$ ${precoCheio.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span><br>
+        <b>Desconto:</b> <span class="text-green-700 font-bold">${descontoStr}%</span><br>
+        <b>Valor com desconto:</b> <span class="text-green-600 font-bold text-xl">R$ ${valorFinal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span><br>
+        <b>Parcelamento:</b> <span class="text-green-700">${parcelas}x</span> de <span class="text-green-700 font-bold">R$ ${valorParcela.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
+      </div>
+      <div class="mb-2">
+        <b>Proposta válida até:</b> <span class="text-red-700 font-bold">${dataEncerramentoBR}</span>
+      </div>
+      <div class="mt-3 flex flex-col sm:flex-row gap-2">
+        <button type="button" onclick="imprimirResumo()" class="bg-green-600 hover:bg-green-700 text-white font-semibold rounded px-4 py-2 w-full sm:w-auto transition-colors duration-200">
+          <i class="fas fa-print"></i> Imprimir / Salvar PDF
+        </button>
+        <button type="button" onclick="compartilharResumo()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded px-4 py-2 w-full sm:w-auto transition-colors duration-200">
+          <i class="fas fa-share-alt"></i> Compartilhar
+        </button>
+      </div>
+      <div class="text-xs text-yellow-600 mt-2">*Proposta válida por tempo limitado. Válida somente para o cliente informado.</div>
+    </div>
+  `;
+
+  lastResumoTexto = resumoTexto;
+  lastResumoHTML = resumoHTML;
+  iniciarTimer(6 * 60 * 60); // 6 horas em segundos
+  resultadoDiv.innerHTML += resumoHTML;
+}
+
+function iniciarTimer(segundos) {
+  const timerDiv = document.getElementById("timer");
+  let tempoRestante = segundos;
+  clearInterval(countdownInterval);
+  atualizarTimer();
+  countdownInterval = setInterval(() => {
+    tempoRestante--;
+    atualizarTimer();
+    if (tempoRestante <= 0) {
+      clearInterval(countdownInterval);
+      timerDiv.innerHTML = `<i class="fas fa-hourglass-end"></i> Proposta expirada! Gere novamente para continuar.`;
+      document.getElementById("resultado").innerHTML = "";
+      document.getElementById("areaDesconto").innerHTML = "";
+      document.getElementById("alertaUltimaBolsa").style.display = "none";
+    }
+  }, 1000);
+  function atualizarTimer() {
+    const min = Math.floor(tempoRestante / 60);
+    const sec = tempoRestante % 60;
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    let label = `<i class="fas fa-clock"></i> Tempo restante da proposta: <span class="font-bold">${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}</span>`;
+    if (resumoDataFim) {
+      label += `<br><span class="text-xs text-gray-500">Encerramento: ${String(resumoDataFim.getDate()).padStart(2, '0')}/${String(resumoDataFim.getMonth() + 1).padStart(2, '0')}/${resumoDataFim.getFullYear()} às ${String(resumoDataFim.getHours()).padStart(2, '0')}:${String(resumoDataFim.getMinutes()).padStart(2, '0')}</span>`;
+    }
+    timerDiv.innerHTML = label;
+  }
+}
+function imprimirResumo() {
+  const printArea = document.getElementById("printArea");
+  printArea.innerHTML = lastResumoHTML;
+  printArea.classList.remove("hidden");
+  window.print();
+  printArea.classList.add("hidden");
+}
+
+function compartilharResumo() {
+  const numeroCliente = document.getElementById("numeroCliente").value.trim();
+  const numeroWhats = numeroCliente.replace(/\D/g, "");
+  if (!numeroWhats) {
+    alert("Número do cliente inválido para WhatsApp!");
+    return;
+  }
+  const textoWhats = encodeURIComponent(lastResumoTexto);
+  const link = `https://wa.me/55${numeroWhats}?text=${textoWhats}`;
+  window.open(link, '_blank');
+}
+
+function copiarParaClipboard(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+}
+function limparFormulario() {
+  document.getElementById("formDesconto").reset();
+  document.getElementById("resultado").innerHTML = "";
+  document.getElementById("areaDesconto").innerHTML = "";
+  document.getElementById("alertaUltimaBolsa").style.display = "none";
+  document.getElementById("timer").innerHTML = "";
+  clearInterval(countdownInterval);
+  resumoDataFim = null;
+  resumoInicioTurma = '';
+  resumoDiasAula = '';
+  resumoTurmaDisciplinas = [];
+  resumoModalidade = '';
+}
+</script>
+
+
+</body></html>
