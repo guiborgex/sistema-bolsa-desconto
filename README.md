@@ -24,19 +24,19 @@ A seguir, apresentamos algumas telas do sistema para ilustrar seu funcionamento:
 
 Nesta tela, o sistema está pronto para receber as informações do cliente e iniciar o processo de busca pela bolsa de desconto ideal. O foco na interface intuitiva permite uma interação fluida para o usuário.
 
-![Tela Inicial - Entrada de Dados](screenshots/1.png)
+![Tela Inicial - Entrada de Dados](assets/screenshots/1.png)
 
 ### 2. Consulta de Turmas e Aplicação de Desconto
 
 Após a seleção do curso e turno, o sistema processa as informações para consultar a disponibilidade da turma e aplicar as regras de negócio para encontrar a melhor oferta de desconto, exibindo-a de forma clara.
 
-![Consulta de Turmas e Detalhes do Desconto](screenshots/2.png)
+![Consulta de Turmas e Detalhes do Desconto](assets/screenshots/2.png)
 
 ### 3. Resumo da Proposta com Escassez e Urgência
 
 A tela final consolida todas as informações da proposta. O desconto, o prazo de validade (com o cronômetro em tempo real!) e a opção de gerar o PDF são apresentados, validando a escassez de forma visual e inegável.
 
-![Resumo da Proposta com Prazo e Urgência](screenshots/3.png)
+![Resumo da Proposta com Prazo e Urgência](assets/screenshots/3.png)
 
 ## Habilidades e Tecnologias Aplicadas
 
